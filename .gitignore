@@ -1,0 +1,12 @@
+/Debug
+/Debug_RAM
+/Release
+/*.bin
+/*.elf
+/*.hex
+/Documentation
+.SDCard_116.g_c
+.SDCard_116.g_x
+!/include
+/Generated_Code
+/SDK
