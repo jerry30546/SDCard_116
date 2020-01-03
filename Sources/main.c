@@ -1,53 +1,49 @@
-/* ###################################################################
-**     Filename    : main.c
-**     Processor   : S32K1xx
-**     Abstract    :
-**         Main module.
-**         This module contains user's application code.
-**     Settings    :
-**     Contents    :
-**         No public methods
-**
-** ###################################################################*/
-/*!
-** @file main.c
-** @version 01.00
-** @brief
-**         Main module.
-**         This module contains user's application code.
-*/         
-/*!
-**  @addtogroup main_module main module documentation
-**  @{
-*/         
-/* MODULE main */
+#include "HAL/clock_hal.h"
+#include "HAL/gpio_hal.h"
+#include "HAL/uart_hal.h"
+#include "HAL/spi_hal.h"
+#include "modules/log/log.h"
 
+volatile int exit_code = 0;
+uint8_t debug_verbose = 5;
+uint8_t debug_instance = 0;
+uint8_t spi_instance = 0;
 
-/* Including necessary module. Cpu.h contains other modules needed for compiling.*/
-#include "Cpu.h"
-
-  volatile int exit_code = 0;
-
-/* User includes (#include below this line is not maintained by Processor Expert) */
-
-/*! 
-  \brief The main function for the project.
-  \details The startup initialization sequence is the following:
- * - startup asm routine
- * - main()
-*/
 int main(void)
 {
-  /* Write your local variable definition here */
-
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
   #ifdef PEX_RTOS_INIT
     PEX_RTOS_INIT();                   /* Initialization of the selected RTOS. Macro is defined by the RTOS component. */
   #endif
   /*** End of Processor Expert internal initialization.                    ***/
+    uint8_t rxBuf[10];
 
-  /* Write your code here */
-  /* For example: for(;;) { } */
+    // Initial Clock Manager
+    clock_drv_init();
+
+	// Initial Pin Mux
+	gpio_drv_init();
+
+    uart_drv_init(debug_instance);
+    spi_drv_init(spi_instance, SPI_MASTER_MODE);
+    spi_cs_high(spi_instance);
+    gpio_set_level(111, GPIO_LEVEL_HIGH);
+    log_debug("Program Start!");
+
+    spi_set_baudrate(spi_instance, 100000);
+    while(rxBuf[0] != 'q') {
+    	uart_recv(debug_instance, rxBuf, 1);
+    }
+
+    uint8_t data[1] = {0x33};
+    spi_cs_low(spi_instance);
+    spi_write_array(spi_instance, data, 1);
+    spi_cs_high(spi_instance);
+    gpio_set_level(111, GPIO_LEVEL_LOW);
+    log_debug("Program Terminated!");
+
+
+
 
   /*** Don't write any code pass this line, or it will be deleted during code generation. ***/
   /*** RTOS startup code. Macro PEX_RTOS_START is defined by the RTOS component. DON'T MODIFY THIS CODE!!! ***/
@@ -64,16 +60,3 @@ int main(void)
   return exit_code;
   /*** Processor Expert end of main routine. DON'T WRITE CODE BELOW!!! ***/
 } /*** End of main routine. DO NOT MODIFY THIS TEXT!!! ***/
-
-/* END main */
-/*!
-** @}
-*/
-/*
-** ###################################################################
-**
-**     This file was created by Processor Expert 10.1 [05.21]
-**     for the NXP S32K series of microcontrollers.
-**
-** ###################################################################
-*/
