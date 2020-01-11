@@ -55,10 +55,10 @@ void spi_set_baudrate(uint8_t instance, uint32_t baudrate) {
 	}
 }
 
-void spi_write_read(uint8_t instance, uint8_t txData[], uint8_t txSize, uint8_t rxData[], uint8_t rxSize) {
+void spi_write_read(uint8_t instance, const uint8_t *txData, uint16_t txSize, uint8_t *rxData, uint16_t rxSize) {
 	uint8_t *rxBuf = calloc(txSize, sizeof(uint8_t));
 	uint8_t *txBuf = calloc(rxSize, sizeof(uint8_t));
-	uint8_t i;
+	uint16_t i;
 
 	for(i = 0; i < txSize; i++) {
 		*(rxBuf + i) = 0xFF;
@@ -78,10 +78,10 @@ void spi_write_read(uint8_t instance, uint8_t txData[], uint8_t txSize, uint8_t 
 	free(txBuf);
 }
 
-void spi_write_array(uint8_t instance, uint8_t txData[], const uint8_t txSize) {
+void spi_write_array(uint8_t instance, const uint8_t *txData, uint16_t txSize) {
 	uint8_t *rxBuf = calloc(txSize, sizeof(uint8_t));
 
-	for(uint8_t i = 0; i < txSize; i++) {
+	for(uint16_t i = 0; i < txSize; i++) {
 		*(rxBuf + i) = 0xFF;
 	}
 
@@ -98,10 +98,10 @@ void spi_write_array(uint8_t instance, uint8_t txData[], const uint8_t txSize) {
 	free(rxBuf);
 }
 
-void spi_read_array(uint8_t instance, uint8_t rxData[], const uint8_t rxSize) {
+void spi_read_array(uint8_t instance, uint8_t *rxData, uint16_t rxSize) {
 	uint8_t *txBuf = calloc(rxSize, sizeof(uint8_t));
 
-	for(uint8_t i = 0; i < rxSize; i++) {
+	for(uint16_t i = 0; i < rxSize; i++) {
 		*(txBuf + i) = 0xFF;
 	}
 
@@ -116,6 +116,23 @@ void spi_read_array(uint8_t instance, uint8_t rxData[], const uint8_t rxSize) {
 		break;
 	}
 	free(txBuf);
+}
+
+uint8_t spi_read_byte(uint8_t instance) {
+	uint8_t txBuf[1] = {0xFF};
+	uint8_t rxBuf[1] = {0xFF};
+
+	switch(spi_mode[instance]) {
+	case SPI_MASTER_MODE:
+		LPSPI_DRV_MasterTransferBlocking(instance, txBuf, rxBuf, 1, 200);
+		break;
+	case SPI_SLAVE_MODE:
+		LPSPI_DRV_SlaveTransferBlocking(instance, txBuf, rxBuf, 1, 200);
+		break;
+	default:
+		break;
+	}
+	return rxBuf[0];
 }
 
 #ifndef SPI_HARDWARE_CHIPSELECT
@@ -136,7 +153,7 @@ void spi_cs_low(uint8_t instance) {
 #endif
 }
 
-void spi_mapping_handler(uint8_t instance) {
+inline void spi_mapping_handler(uint8_t instance) {
 	switch(instance) {
 	case 0:
 		spi_cs_pin = 37; // Port B-5

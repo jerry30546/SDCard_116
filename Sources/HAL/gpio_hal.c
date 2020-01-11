@@ -29,7 +29,12 @@ void gpio_set_level(uint32_t index, uint8_t level) {
 	}
 }
 
-void mapping_handler(uint32_t index) {
+void gpio_set_toggle(uint32_t index) {
+	mapping_handler(index);
+	PINS_DRV_TogglePins(port, 1 << pin);
+}
+
+inline void mapping_handler(uint32_t index) {
 	uint8_t port_count = index/32;
 	pin = index%32;
 

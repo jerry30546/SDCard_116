@@ -51,6 +51,10 @@ void uart_send(uint8_t instance, uint8_t *txBuf) {
 	LPUART_DRV_SendData(instance, txBuf, strlen((char*)txBuf));
 }
 
+void uart_send_blocking(uint8_t instance, uint8_t *txBuf) {
+	LPUART_DRV_SendDataBlocking(instance, txBuf, strlen((char*)txBuf), 200);
+}
+
 /**************************************************************************
  * Function Name:		uart_recv
  * Description:			UART non-blocking reception function

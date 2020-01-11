@@ -14,6 +14,7 @@ void gpio_drv_init(void);
 void gpio_drv_exit(void);
 void gpio_set_direction(uint32_t pin, uint8_t direction);
 void gpio_set_level(uint32_t pin, uint8_t level);
+void gpio_set_toggle(uint32_t index);
 
 
 #endif /* HAL_GPIO_HAL_H_ */
