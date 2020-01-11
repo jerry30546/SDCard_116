@@ -11,14 +11,14 @@
  * @ param1 style:	ANSI escape code
  * @ param2 fmt:	Log message format
  * @ param3 arg:	message arguments
+ * Returns: 		char array of output message
  **************************************************************************/
 char* string_append(const char *style, const char *fmt, va_list arg) {
 	char *msg = calloc(1024, sizeof(char));
 	vsprintf(msg, fmt, arg);
     char *result = malloc(strlen(style) + strlen(msg) + strlen(NORMAL) + 3); // +1 for the null-terminator
     // in real code you would check for errors in malloc here
-    strcpy(result, "\r\n");
-    strcat(result, style);
+    strcpy(result, style);
     strcat(result, msg);
     strcat(result, NORMAL);
     free(msg);
@@ -35,8 +35,8 @@ void log_error(char* fmt, ...) {
 		va_list arg;
 		va_start(arg, fmt);
 		va_end(arg);
-		char* message = string_append(BLINK TEXT_RED, fmt, arg);
-		uart_send(debug_instance, (uint8_t *)message);
+		char* message = string_append(TEXT_RED, fmt, arg);
+		uart_send_blocking(debug_instance, (uint8_t *)message);
 		free(message);
 	}
 }
@@ -52,7 +52,7 @@ void log_warning(char* fmt, ...) {
 		va_start(arg, fmt);
 		va_end(arg);
 		char* message = string_append(TEXT_YELLOW, fmt, arg);
-		uart_send(debug_instance, (uint8_t *)message);
+		uart_send_blocking(debug_instance, (uint8_t *)message);
 		free(message);
 	}
 }
@@ -68,7 +68,7 @@ void log_info(char* fmt, ...) {
 		va_start(arg, fmt);
 		va_end(arg);
 		char* message = string_append(TEXT_GREEN, fmt, arg);
-		uart_send(debug_instance, (uint8_t *)message);
+		uart_send_blocking(debug_instance, (uint8_t *)message);
 		free(message);
 	}
 }
@@ -84,7 +84,7 @@ void log_debug(char* fmt, ...) {
 		va_start(arg, fmt);
 		va_end(arg);
 		char* message = string_append(TEXT_WHITE, fmt, arg);
-		uart_send(debug_instance, (uint8_t *)message);
+		uart_send_blocking(debug_instance, (uint8_t *)message);
 		free(message);
 	}
 }
@@ -105,7 +105,7 @@ void log_customize(char* style, char* fmt, ...) {
 		va_start(arg, fmt);
 		va_end(arg);
 		char* message = string_append(style, fmt, arg);
-		uart_send(debug_instance, (uint8_t *)message);
+		uart_send_blocking(debug_instance, (uint8_t *)message);
 		free(message);
 	}
 }
